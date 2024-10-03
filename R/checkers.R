@@ -1,8 +1,12 @@
-is_rendering_context <- function() {
-  is_rendering() && has_metadata() && getOption("pakret.render_mode", TRUE)
+is_rendering <- function() {
+  isTRUE(get("render"))
 }
 
-is_rendering <- function() {
+is_rendering_context <- function() {
+  is_knitting() && has_metadata() && getOption("pakret.render_mode", TRUE)
+}
+
+is_knitting <- function() {
   isTRUE(getOption("knitr.in.progress"))
 }
 
@@ -47,12 +51,12 @@ is_r <- function(x) {
   x %in% c("R", "base")
 }
 
-is_manual <- function(x) {
-  tolower(substr(x, 2L, 7L)) == "manual"
+bibtex_is <- function(x, type) {
+  tolower(substr(x, 2L, nchar(type) + 1L)) == type
 }
 
-has_manual <- function(x) {
-  any(vapply(x, is_manual, logical(1L)))
+has_bibtex <- function(x, type) {
+  any(vapply(x, function(.x) bibtex_is(.x, type), logical(1L)))
 }
 
 has_metadata <- function() {

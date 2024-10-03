@@ -23,12 +23,16 @@ as_pkg <- function(x) {
   if (is_r(x)) {
     return(as_r())
   }
-  class(x) <- "pkg"
-  x
+  add_class(x, "pkg")
 }
 
 as_r <- function() {
-  structure("base", class = "r")
+  add_class("base", cls = "r")
+}
+
+add_class <- function(x, cls) {
+  class(x) <- cls
+  x
 }
 
 bib_init <- function() {
@@ -93,7 +97,7 @@ add_ref <- function(x) {
     return()
   }
   set(
-    refs = append(get_citation(x), to = "refs"),
+    refs = append(get_reference(x), to = "refs"),
     keys = append(x, to = "keys")
   )
 }
@@ -102,24 +106,27 @@ append <- function(x, to) {
   c(get(to), x)
 }
 
-get_citation <- function(x) {
+get_reference <- function(x) {
   ref <- utils::citation(x)
   ref <- format(ref, style = "bibtex")
   if (length(ref) > 1L) {
-    ref <- pick_citation(ref)
+    ref <- pick_reference(ref)
   }
   insert_pkg_key(ref, key = x)
 }
 
-pick_citation <- function(x) {
-  if (has_manual(x)) {
-    return(pick_manual(x))
+pick_reference <- function(x) {
+  for (type in c("manual", "book")) {
+    if (has_bibtex(x, type)) {
+      x <- pick_bibtex(x, type)
+      break
+    }
   }
   x[[1]]
 }
 
-pick_manual <- function(x) {
-  x[is_manual(x)]
+pick_bibtex <- function(x, type) {
+  x[bibtex_is(x, type)]
 }
 
 insert_pkg_key <- function(x, key) {
@@ -128,7 +135,7 @@ insert_pkg_key <- function(x, key) {
 
 cite <- function(x, template = class(x)) {
   check_pkg(x)
-  if (is_rendering_context()) {
+  if (is_rendering()) {
     add_ref(x)
   }
   make_citation(x, template = template)

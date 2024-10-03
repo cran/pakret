@@ -44,7 +44,6 @@ document:
 
     ```{r}
     #| include: false
-
     library(pakret)
     ```
 
@@ -71,6 +70,34 @@ Here’s the markdown output produced by the document above:
 
     Itisalapsus, Julius. 2024. *Bar: Tempus Edax Rerum*.
 
+It’s also possible to cite a collection of packages with `pkrt_list()`:
+
+    ---
+    bibliography: references.bib
+    ---
+
+    ```{r}
+    #| include: false
+    library(pakret)
+    ```
+
+    We analyse the data using the following packages: `r pkrt_list("foo", "bar")`.
+
+    ## References
+
+<!-- separator -->
+
+    We analyse the data using the following packages: ‘foo’ v. 1.0.0
+    (Fastandfurius, Clausus, and Lastopus 2020), ‘bar’ v. 0.2.0 (Itisalapsus
+    2024).
+
+    ## References
+
+    Fastandfurius, Caius, Numerius Clausus, and Marcus Lastopus. 2020. *Foo:
+    Alea Jacta Est*.
+
+    Itisalapsus, Julius. 2024. *Bar: Tempus Edax Rerum*.
+
 Unhappy with the default templates? pakret lets you define your own:
 
     ---
@@ -88,7 +115,7 @@ Unhappy with the default templates? pakret lets you define your own:
 
     ## References
 
-Which gives:
+<!-- separator -->
 
     We used the R package foo (v. 1.0.0; Fastandfurius, Clausus, and
     Lastopus (2020)) to analyse the data.
@@ -97,35 +124,6 @@ Which gives:
 
     Fastandfurius, Caius, Numerius Clausus, and Marcus Lastopus. 2020. *Foo:
     Alea Jacta Est*.
-
-It’s also possible to cite a collection of packages with `pkrt_list()`:
-
-    ---
-    bibliography: references.bib
-    ---
-
-    ```{r}
-    #| include: false
-
-    library(pakret)
-    ```
-
-    We analyse the data using the following packages: `r pkrt_list("foo", "bar")`.
-
-    ## References
-
-Here’s the result:
-
-    We analyse the data using the following packages: ‘foo’ v. 1.0.0
-    (Fastandfurius, Clausus, and Lastopus 2020), ‘bar’ v. 0.2.0 (Itisalapsus
-    2024).
-
-    ## References
-
-    Fastandfurius, Caius, Numerius Clausus, and Marcus Lastopus. 2020. *Foo:
-    Alea Jacta Est*.
-
-    Itisalapsus, Julius. 2024. *Bar: Tempus Edax Rerum*.
 
 Note that by default pakret writes new references into the first `.bib`
 file specified in the bibliography list. You can change which `.bib`

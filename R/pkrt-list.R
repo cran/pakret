@@ -49,19 +49,21 @@ itemize_citations <- function(pkgs) {
     attributes(citation) <- pkg_details(pkg)
     citation
   })
-  as_pkrt_list(citations)
-}
-
-as_pkrt_list <- function(x) {
-  structure(x, class = "pkrt_list")
+  add_class(citations, "pkrt_list")
 }
 
 #' @export
 as.data.frame.pkrt_list <- function(x, ...) {
+  x <- sort(x)
   x <- do.call(rbind.data.frame, lapply(x, attributes))
   row.names(x) <- NULL
   names(x) <- c("Package", "Version", "Reference")
   x
+}
+
+sort.pkrt_list <- function(x, ...) {
+  pkgs <- vapply(x, function(.x) attr(.x, "pkg"), character(1L))
+  x[factor(pkgs)]
 }
 
 #' @export
