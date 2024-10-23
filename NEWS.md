@@ -1,3 +1,9 @@
+# pakret 0.2.2
+
+* pakret can now write references in multiple `.bib` files within the same document (#26).
+
+* Fixed an issue with `pkrt_set(bib =)` that may lead to the replication or deletion of some bib entries in the newly defined `.bib` file in some edge cases (#22).
+
 # pakret 0.2.1
 
 * pakret now can cite references that have a pre-written key (#18).

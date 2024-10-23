@@ -25,6 +25,7 @@
 pkrt_set <- function(...) {
   items <- list(...)
   check_named(items, arg = "...")
+  check_settings(items)
   for (key in names(items)) {
     update_setting(key, items[[key]])
   }
@@ -52,15 +53,15 @@ reset <- function(x) {
 }
 
 update <- function(x) {
+  if (is_updating_bib(x)) {
+    bib_write()
+    withr::defer(bib_set())
+  }
   do.call(set, as.list(x))
 }
 
 set_option <- function(x) {
   UseMethod("set_option")
-}
-
-set_option.default <- function(x) {
-  abort("`%s` isn't a valid setting.", names(x))
 }
 
 set_option.template <- function(x) {
@@ -77,7 +78,7 @@ set_option.bib <- function(x) {
     x[] <- bib_name(x)
   }
   check_bib_target(x)
-  set(bib = x, file = bib_fetch())
+  update(x)
 }
 
 # doc ----

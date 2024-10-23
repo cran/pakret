@@ -23,6 +23,10 @@ is_bib <- function(x) {
   tolower(substr(x, n - 3L, n)) == ".bib"
 }
 
+is_updating_bib <- function(x) {
+  is_rendering() && names(x) == "bib" && x != get("bib")
+}
+
 is_unit_set <- function(x) {
   length(x) == 1L
 }
@@ -79,7 +83,7 @@ caller_arg <- function() {
   deparse(substitute(x, env = parent.frame()))
 }
 
-check_type <- function(x, asserter, expected, arg = caller_arg()) {
+check_type <- function(x, asserter, expected, arg) {
   if (asserter(x)) {
     return(invisible())
   }
@@ -154,6 +158,15 @@ check_invalid_vars <- function(x, allowed, arg) {
     return(invisible())
   }
   abort("Invalid placeholder `:%s` found in `%s`.", not_allowed, arg)
+}
+
+check_settings <- function(x) {
+  x <- names(x)
+  invalid <- seek(x, !x %in% names(.__settings__))
+  if (is.null(invalid)) {
+    return(invisible())
+  }
+  abort("`%s` isn't a valid setting.", invalid)
 }
 
 check_option_bib <- function(x, arg = caller_arg()) {
