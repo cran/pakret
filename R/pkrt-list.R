@@ -8,12 +8,12 @@
 #' @param ... Character vectors, separated by commas, of packages to cite.
 #' @details
 #' This function automatically discards duplicate and base packages. You can use
-#' `pkrt_list()` in combination with `renv::dependencies()` to cite all the
+#' `pkrt_list()` in combination with [`renv::dependencies()`] to cite all the
 #' packages used in a project or directory.
 #' @returns A list of package citations with S3 class `pkrt_list`.
 #' @examples
 #' # Create a list of citations
-#' citations <- pkrt_list("pakret", "readr", "withr")
+#' citations <- pkrt_list("pakret", "readr", "knitr")
 #'
 #' # You can then turn the citations into a character string
 #' paste(citations, collapse = ", ")

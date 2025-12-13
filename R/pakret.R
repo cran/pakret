@@ -50,16 +50,20 @@ bib_set <- function() {
 }
 
 bib_fetch <- function() {
-  bibs <- rmarkdown::metadata$bibliography
+  bibs <- get("bibliography")
   names(bibs) <- bib_name(bibs)
   file <- bibs[[get("bib")]]
   check_bib(file, arg = file)
-  get_path(file)
+  resolve_path(file)
 }
 
-get_path <- function(x) {
+resolve_path <- function(x) {
   dir <- knitr::opts_knit$get("output.dir")
-  file.path(dir, x)
+  path <- file.path(dir, x)
+  if (!file.exists(path)) {
+    file.create(path)
+  }
+  path
 }
 
 extract_keys <- function() {
@@ -88,81 +92,75 @@ bib_write <- function() {
 }
 
 make_lines <- function() {
-  eol <- eol()
   out <- collapse(get("refs"))
   if (get("append")) {
-    out <- paste0(eol, out)
+    out <- paste0(get("eol"), out)
   }
-  paste0(out, eol)
+  paste0(out, get("eol"))
 }
 
-add_ref <- function(x) {
+ref_add <- function(x) {
   if (is_referenced(x)) {
     return()
   }
   set(
-    refs = append(get_reference(x), to = "refs"),
-    keys = append(x, to = "keys")
+    refs = ref_get(x),
+    keys = x,
+    .add = TRUE
   )
 }
 
-append <- function(x, to) {
-  c(get(to), x)
-}
-
-get_reference <- function(x) {
+ref_get <- function(x) {
   ref <- utils::citation(x)
   ref <- format(ref, style = "bibtex")
   if (length(ref) > 1L) {
-    ref <- pick_reference(ref)
+    ref <- ref_pick(ref)
   }
-  insert_pkg_key(ref, key = x)
+  ref_normalize(ref, key = x)
 }
 
-pick_reference <- function(x) {
+ref_pick <- function(x) {
   for (type in c("manual", "book")) {
     if (has_bibtex(x, type)) {
-      x <- pick_bibtex(x, type)
+      x <- bibtex_pick(x, type)
       break
     }
   }
   x[[1]]
 }
 
-pick_bibtex <- function(x, type) {
+bibtex_pick <- function(x, type) {
   x[bibtex_is(x, type)]
 }
 
-insert_pkg_key <- function(x, key) {
+ref_normalize <- function(ref, key) {
+  ref <- insert_key(ref, key)
+  protect_case(ref, key)
+}
+
+insert_key <- function(x, key) {
   sub("^@[^{]+\\{\\K[^,]*", key, x, perl = TRUE)
+}
+
+protect_case <- function(x, key) {
+  x <- strsplit(x, "\n", fixed = TRUE)[[1]]
+  title <- grep("title =", x, fixed = TRUE)
+  pattern <- sprintf("((?<!: |\\{)\\b[A-Z]\\b|%s(?!\\}))", key)
+  x[title] <- gsub(pattern, "{\\1}", x[[title]], perl = TRUE)
+  paste(x, collapse = "\n")
 }
 
 cite <- function(x, template = class(x)) {
   check_pkg(x)
   if (is_rendering()) {
-    add_ref(x)
+    ref_add(x)
   }
-  make_citation(x, template = template)
-}
-
-make_citation <- function(x, ...) {
-  UseMethod("make_citation")
-}
-
-make_citation.default <- function(x, ..., template) {
   cast(template, pkg_details(x))
-}
-
-make_citation.r <- function(x, ...) {
-  cast("r", list(
-    ver = get_version("base"),
-    ref = "@base"
-  ))
 }
 
 cast <- function(x, items) {
   template <- get(x)
-  do.call(sprintf, c(as_sprintf(template), items[vars(template)]))
+  do.call(sprintf, c(template$str, items[template$vars]))
 }
 
 as_sprintf <- function(x) {
@@ -182,5 +180,5 @@ pkg_details <- function(pkg) {
 }
 
 get_version <- function(x) {
-  unname(getNamespaceVersion(x))
+  as.character(utils::packageVersion(x))
 }

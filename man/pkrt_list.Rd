@@ -22,12 +22,12 @@ already exist.
 }
 \details{
 This function automatically discards duplicate and base packages. You can use
-\code{pkrt_list()} in combination with \code{renv::dependencies()} to cite all the
+\code{pkrt_list()} in combination with \code{\link[renv:dependencies]{renv::dependencies()}} to cite all the
 packages used in a project or directory.
 }
 \examples{
 # Create a list of citations
-citations <- pkrt_list("pakret", "readr", "withr")
+citations <- pkrt_list("pakret", "readr", "knitr")
 
 # You can then turn the citations into a character string
 paste(citations, collapse = ", ")

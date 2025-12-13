@@ -27,12 +27,12 @@ is_updating_bib <- function(x) {
   is_rendering() && names(x) == "bib" && x != get("bib")
 }
 
-is_unit_set <- function(x) {
+is_scalar <- function(x) {
   length(x) == 1L
 }
 
 is_string <- function(x) {
-  is.character(x) && is_unit_set(x)
+  is.character(x) && is_scalar(x)
 }
 
 is_blank <- function(x) {
@@ -65,6 +65,10 @@ has_bibtex <- function(x, type) {
 
 has_metadata <- function() {
   !is_empty(rmarkdown::metadata)
+}
+
+has_placeholder <- function(x) {
+  grepl(.regex$placeholder, x, perl = TRUE)
 }
 
 abort <- function(msg, ...) {
@@ -102,9 +106,9 @@ check_character <- function(x, arg = caller_arg()) {
   check_type(x, is.character, "a character vector", arg)
 }
 
-check_unit_set <- function(x, arg = caller_arg()) {
+check_scalar <- function(x, arg = caller_arg()) {
   check_atomic(x, arg)
-  asserter <- function(x) is.null(x) || is_unit_set(x)
+  asserter <- function(x) is.null(x) || is_scalar(x)
   check_type(x, asserter, "a single element vector", arg)
 }
 
@@ -125,7 +129,7 @@ check_template <- function(x, arg) {
   vars_curr <- vars(x)
   check_duplicated_vars(vars_curr, arg)
   vars_default <- vars(.__settings__[[arg]])
-  check_missing_vars(vars_curr, vars_default, arg)
+  check_missing_vars(vars_curr, vars_default[vars_default != "ver"], arg)
   check_invalid_vars(vars_curr, vars_default, arg)
 }
 
@@ -175,8 +179,7 @@ check_option_bib <- function(x, arg = caller_arg()) {
 }
 
 check_bibliography <- function() {
-  bib <- rmarkdown::metadata$bibliography
-  if (!is.null(bib)) {
+  if (!is.null(get("bibliography"))) {
     return(invisible())
   }
   abort(c(
@@ -186,14 +189,25 @@ check_bibliography <- function() {
 }
 
 check_bib_target <- function(x) {
-  bibs <- rmarkdown::metadata$bibliography
-  if (x %in% bib_name(bibs) || x <= length(bibs)) {
+  check_bib_target_(unclass(x), get("bibliography"))
+}
+
+check_bib_target_ <- function(x, bibs) {
+  UseMethod("check_bib_target_")
+}
+
+check_bib_target_.character <- function(x, bibs) {
+  if (x %in% bib_name(bibs)) {
     return(invisible())
   }
-  if (is.numeric(x)) {
-    abort("`bib` index out of bound.")
-  }
   abort("`%s.bib` doesn't exist in the bibliography list.", x)
+}
+
+check_bib_target_.numeric <- function(x, bibs) {
+  if (x > 0L && x <= length(bibs)) {
+    return(invisible())
+  }
+  abort("`bib` index out of bound.")
 }
 
 check_bib <- function(x, arg = caller_arg()) {

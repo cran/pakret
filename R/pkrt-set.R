@@ -9,8 +9,8 @@
 #' `r make_pkrt_set_details()`
 #'
 #' New settings only apply to citations that come after `pkrt_set()`. This means
-#' that you can redefine the same settings multiple times in the same document
-#' to alter pakret's behavior for a few specific citations only.
+#' you can redefine the same settings multiple times in the same document to
+#' alter pakret's behavior for a few specific citations only.
 #'
 #' Use `NULL` to reset a parameter to its default value.
 #' @returns This function is called for its side-effect. It returns no value.
@@ -32,7 +32,7 @@ pkrt_set <- function(...) {
 }
 
 update_setting <- function(key, value) {
-  check_unit_set(value, arg = key)
+  check_scalar(value, arg = key)
   if (is.null(value)) {
     return(reset(key))
   }
@@ -43,7 +43,7 @@ update_setting <- function(key, value) {
 
 get_template_keys <- function() {
   x <- .__settings__
-  names(x)[grepl(.regex$placeholder, x, perl = TRUE)]
+  names(x)[has_placeholder(x)]
 }
 
 .template_keys <- get_template_keys()
@@ -55,7 +55,7 @@ reset <- function(x) {
 update <- function(x) {
   if (is_updating_bib(x)) {
     bib_write()
-    withr::defer(bib_set())
+    defer(bib_set())
   }
   do.call(set, as.list(x))
 }

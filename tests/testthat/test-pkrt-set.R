@@ -2,6 +2,9 @@ test_that("custom templates work", {
   load_foo()
   local_settings(pkg = ":ref :ver :pkg")
   expect_equal(pkrt("foo"), "@foo 1.0.0 foo")
+
+  local_settings(pkg = ":pkg :ref")
+  expect_equal(pkrt("foo"), "foo @foo")
 })
 
 test_that("`NULL` resets settings to their default value", {
@@ -12,7 +15,6 @@ test_that("`NULL` resets settings to their default value", {
 })
 
 test_that("writing bib entries in the desired file works", {
-  skip_on_os("windows")
   template <- make_template(lines = dedent("
     ```{r}
     pkrt_set(bib = 2L)
@@ -22,7 +24,7 @@ test_that("writing bib entries in the desired file works", {
   load_bar()
   dir <- local_files(template, bib = local_set(
     # the pre-written ref is to ensure that pkrt_set() resets bib metadata (#22)
-    lines = get_reference("bar"),
+    lines = ref_get("bar"),
     n = 2L
   ))
 
@@ -36,7 +38,6 @@ test_that("writing bib entries in the desired file works", {
 })
 
 test_that("writing bib entries in multiple file works", {
-  skip_on_os("windows")
   template <- make_template(lines = dedent("
     ```{r}
     pkrt_set(bib = 2L)
