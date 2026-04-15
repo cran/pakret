@@ -30,11 +30,6 @@ as_r <- function() {
   add_class("base", cls = "r")
 }
 
-add_class <- function(x, cls) {
-  class(x) <- cls
-  x
-}
-
 bib_init <- function() {
   check_bibliography()
   bib_set()
@@ -160,7 +155,7 @@ cite <- function(x, template = class(x)) {
 
 cast <- function(x, items) {
   template <- get(x)
-  do.call(sprintf, c(template$str, items[template$vars]))
+  I(do.call(sprintf, c(template$str, items[template$vars])))
 }
 
 as_sprintf <- function(x) {

@@ -1,3 +1,11 @@
+# pakret 0.3.1
+
+* pakret now supports Quarto's inline syntax (#54).
+
+* `pkrt_set()` gains two new parameters, `sep` and `sep_last`, to control
+separators between packages when citing a list of packages in inline chunks
+(#53).
+
 # pakret 0.3.0
 
 * pakret now creates the `.bib` files used to write package references if they
@@ -35,8 +43,8 @@ deletion of some bib entries in the newly defined `.bib` file in some edge cases
 
 * Added `book` as a second BibTeX type that should be used in priority when
 getting the reference of a package (previously, the priority was given to
-`manual` entries only). This allows for a slightly better handling of multi-
-reference packages by using a more general reference when there's a `book` but
+`manual` entries only). This allows slightly better handling of packages with
+multiple citations by using a more general reference when there's a `book` but
 no `manual` BibTeX entry available (#15).
 
 * `as.data.frame.pkrt_list()` now arranges packages in alphabetical order (#13).

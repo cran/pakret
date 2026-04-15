@@ -1,7 +1,7 @@
 #' @title Configure pakret's settings
-#' @description This function allows you to configure pakret's settings, e.g. to
-#'   customize citation templates or control which `.bib` file to save
-#'   references to.
+#' @description This function lets you configure pakret's settings, for example,
+#'   to customize citation templates or specify which `.bib` file should store
+#'   the references.
 #' @param ... Key-value pairs, separated by commas, of parameters to set. See
 #'   details.
 #' @details
@@ -15,7 +15,7 @@
 #' Use `NULL` to reset a parameter to its default value.
 #' @returns This function is called for its side-effect. It returns no value.
 #' @examples
-#' pkrt_set(pkg = ":pkg (v. :ver) :ref")
+#' pkrt_set(pkg = "*:pkg* :ver :ref")
 #' pkrt("pakret")
 #'
 #' # `NULL` resets parameters to their default value
@@ -32,21 +32,14 @@ pkrt_set <- function(...) {
 }
 
 update_setting <- function(key, value) {
+  check_atomic(value, arg = key)
   check_scalar(value, arg = key)
   if (is.null(value)) {
     return(reset(key))
   }
-  names(value) <- key
-  class(value) <- if (is_template(key)) "template" else key
-  set_option(value)
+  setting <- as_setting(value, key)
+  set_option(setting)
 }
-
-get_template_keys <- function() {
-  x <- .__settings__
-  names(x)[has_placeholder(x)]
-}
-
-.template_keys <- get_template_keys()
 
 reset <- function(x) {
   update(.__settings__[x])
@@ -55,9 +48,13 @@ reset <- function(x) {
 update <- function(x) {
   if (is_updating_bib(x)) {
     bib_write()
-    defer(bib_set())
+    on.exit(bib_set(), add = TRUE)
   }
   do.call(set, as.list(x))
+}
+
+as_setting <- function(x, name) {
+  structure(x, names = name, class = class(.__settings__[[name]]))
 }
 
 set_option <- function(x) {
@@ -66,6 +63,11 @@ set_option <- function(x) {
 
 set_option.template <- function(x) {
   check_template(x, arg = names(x))
+  update(x)
+}
+
+set_option.str <- function(x) {
+  check_string(x, arg = names(x))
   update(x)
 }
 
@@ -91,7 +93,7 @@ set_option.bib <- function(x) {
 
 make_pkrt_set_details <- function() {
   out <- lapply(names(.details), function(key, value = .details[[key]]) {
-    default <- .__settings__[[key]]
+    default <- unclass(.__settings__[[key]])
     if (!is.list(value)) {
       value <- as.list(value)
     }
@@ -110,5 +112,7 @@ make_pkrt_set_details <- function() {
   ),
   pkg = "Template used to cite a package.",
   pkg_list = "Template used in `pkrt_list()`.",
-  r = "Template used to cite R."
+  r = "Template used to cite R.",
+  sep = "Separator used between packages in inline chunks.",
+  sep_last = "Separator used between the last two packages in inline chunks."
 )

@@ -17,6 +17,16 @@ status](https://www.r-pkg.org/badges/version/pakret)](https://CRAN.R-project.org
 pakret is a minimalist R package citation tool to reference and cite R
 and R packages on the fly in R Markdown and Quarto.
 
+## Key features
+
+- Allows independent, inline citations of a single package or a list of
+  packages.
+- Supports full customization of package citations.
+- Can cite packages in tabular format.
+- Appends new references to existing `.bib` files.
+- Uses a single reference per package, prioritizing `manual` and `book`
+  entries.
+
 ## Installation
 
 Install pakret from CRAN with:
@@ -89,7 +99,7 @@ You can also cite a collection of packages with `pkrt_list()`:
 <!-- separator -->
 
     I used the following packages: ‘foo’ v. 1.0.0 (Fastandfurius, Clausus,
-    and Lastopus 2020), ‘bar’ v. 0.2.0 (Itisalapsus 2024).
+    and Lastopus 2020), and ‘bar’ v. 0.2.0 (Itisalapsus 2024).
 
     ## References
 

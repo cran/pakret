@@ -14,9 +14,9 @@ details.}
 This function is called for its side-effect. It returns no value.
 }
 \description{
-This function allows you to configure pakret's settings, e.g. to
-customize citation templates or control which \code{.bib} file to save
-references to.
+This function lets you configure pakret's settings, for example,
+to customize citation templates or specify which \code{.bib} file should store
+the references.
 }
 \details{
 Valid parameters are:
@@ -33,6 +33,12 @@ Template used in \code{pkrt_list()}.
 \item \strong{r}\if{html}{\out{<br>}}
 \verb{<character> = "R version :ver [:ref]"}\if{html}{\out{<br>}}
 Template used to cite R.
+\item \strong{sep}\if{html}{\out{<br>}}
+\verb{<character> = ", "}\if{html}{\out{<br>}}
+Separator used between packages in inline chunks.
+\item \strong{sep_last}\if{html}{\out{<br>}}
+\verb{<character> = ", and "}\if{html}{\out{<br>}}
+Separator used between the last two packages in inline chunks.
 }
 
 New settings only apply to citations that come after \code{pkrt_set()}. This means
@@ -42,7 +48,7 @@ alter pakret's behavior for a few specific citations only.
 Use \code{NULL} to reset a parameter to its default value.
 }
 \examples{
-pkrt_set(pkg = ":pkg (v. :ver) :ref")
+pkrt_set(pkg = "*:pkg* :ver :ref")
 pkrt("pakret")
 
 # `NULL` resets parameters to their default value

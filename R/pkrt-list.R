@@ -1,10 +1,9 @@
 #' @title Cite a collection of R packages
-#' @description Creates a list of package citations that can be turned into a
-#'   character string or data frame. This function should normally only be used
-#'   in an R Markdown or Quarto document, in which case `pkrt_list()`
-#'   automatically references the cited packages in the first (by default)
-#'   `.bib` file specified in the YAML header if no references of the packages
-#'   already exist.
+#' @description Creates a list of package citations that can be converted into a
+#'   character string or data frame. This function is normally used within an R
+#'   Markdown or Quarto document, where `pkrt_list()` automatically references
+#'   the cited packages in the first (by default) `.bib` file specified in the
+#'   YAML header if no reference for the packages already exists.
 #' @param ... Character vectors, separated by commas, of packages to cite.
 #' @details
 #' This function automatically discards duplicate and base packages. You can use
@@ -16,6 +15,7 @@
 #' citations <- pkrt_list("pakret", "readr", "knitr")
 #'
 #' # You can then turn the citations into a character string
+#' # Note that this is done automatically in inline chunks
 #' paste(citations, collapse = ", ")
 #'
 #' # Or a data frame
@@ -75,4 +75,21 @@ print.pkrt_list <- function(x, ...) {
 unstructure <- function(x) {
   attributes(x) <- NULL
   x
+}
+
+#' @export
+knit_print.pkrt_list <- function(x, ..., inline = FALSE) {
+  if (inline) {
+    return(enumerate(x))
+  }
+  NextMethod()
+}
+
+enumerate <- function(x) {
+  n <- length(x)
+  if (n == 1L) {
+    return(x)
+  }
+  lhs <- paste(x[-n], collapse = get("sep"))
+  paste0(lhs, get("sep_last"), x[n])
 }
